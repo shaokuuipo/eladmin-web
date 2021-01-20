@@ -51,7 +51,9 @@ module.exports = {
         '@': resolve('src'),
         '@crud': resolve('src/components/Crud')
       }
-    }
+    },
+    //vscode调试设置
+    devtool: 'source-map'
   },
   chainWebpack(config) {
     config.plugins.delete('preload') // TODO: need test
