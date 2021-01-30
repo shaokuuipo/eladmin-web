@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-export function login(username, password, code, uuid) {
+export function login(username, password, code, uuid, authId) {
   return request({
     url: 'auth/login',
     method: 'post',
@@ -8,7 +8,19 @@ export function login(username, password, code, uuid) {
       username,
       password,
       code,
-      uuid
+      uuid,
+      authId
+    }
+  })
+}
+
+export function loginBySocial(source, code, state) {
+  return request({
+    url: `auth/social/callback/${source}`,
+    method: 'post',
+    data: {
+      code,
+      state
     }
   })
 }
