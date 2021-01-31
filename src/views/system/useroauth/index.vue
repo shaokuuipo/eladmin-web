@@ -5,7 +5,7 @@
       <div v-if="crud.props.searchToggle">
         <!-- 搜索 -->
         <label class="el-form-item-label">用户主键</label>
-        <el-input v-model="query.userId" clearable placeholder="用户主键" style="width: 185px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
+        <el-input-number v-model="query.userId" controls-position="right" style="width: 185px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
         <label class="el-form-item-label">用户名</label>
         <el-input v-model="query.username" clearable placeholder="用户名" style="width: 185px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
         <label class="el-form-item-label">昵称</label>
@@ -19,7 +19,7 @@
       <!--表单组件-->
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="500px">
         <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">
-          <el-form-item label="用户主键">
+          <el-form-item label="用户主键" prop="userId">
             <el-input v-model="form.userId" style="width: 370px;" />
           </el-form-item>
           <el-form-item label="用户名">
@@ -49,10 +49,10 @@
           <el-form-item label="性别">
             <el-input v-model="form.gender" style="width: 370px;" />
           </el-form-item>
-          <el-form-item label="来源">
+          <el-form-item label="来源" prop="source">
             <el-input v-model="form.source" style="width: 370px;" />
           </el-form-item>
-          <el-form-item label="第三方系统用户ID">
+          <el-form-item label="第三方系统用户ID" prop="uuid">
             <el-input v-model="form.uuid" style="width: 370px;" />
           </el-form-item>
         </el-form>
@@ -104,7 +104,7 @@ export default {
   components: { pagination, crudOperation, rrOperation, udOperation },
   mixins: [presenter(), header(), form(defaultForm), crud()],
   cruds() {
-    return CRUD({ title: '第三方登录信息', url: 'api/userOauth', idField: 'oauthId', sort: 'oauthId,desc', crudMethod: { ...crudUserOauth }})
+    return CRUD({ title: '第三方登录信息', url: 'api/userOauth', idField: 'oauthId', sort: 'oauthId,desc', crudMethod: { ...crudUserOauth }, optShow: { add: false }})
   },
   data() {
     return {
@@ -114,6 +114,9 @@ export default {
         del: ['admin', 'userOauth:del']
       },
       rules: {
+        'userId': [{ type: 'integer', message: '只能输入数字', trigger: 'blur' }],
+        'source': [{ type: 'string', required: true, message: '请输入登录来源', trigger: 'blur' }],
+        'uuid': [{ type: 'string', required: true, message: '请输入第三方系统的id', trigger: 'blur' }]
       },
       queryTypeOptions: [
         { key: 'userId', display_name: '用户主键' },

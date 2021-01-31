@@ -102,13 +102,13 @@
       @selection-change="crud.selectionChangeHandler"
     >
       <el-table-column type="selection" width="55" />
-      <el-table-column :show-overflow-tooltip="true" label="菜单标题" width="125px" prop="title" />
+      <el-table-column :show-overflow-tooltip="true" label="菜单标题" width="220px" prop="title" />
       <el-table-column prop="icon" label="图标" align="center" width="60px">
         <template slot-scope="scope">
           <svg-icon :icon-class="scope.row.icon ? scope.row.icon : ''" />
         </template>
       </el-table-column>
-      <el-table-column prop="menuSort" align="center" label="排序">
+      <el-table-column prop="menuSort" align="center" label="排序" width="60px">
         <template slot-scope="scope">
           {{ scope.row.menuSort }}
         </template>

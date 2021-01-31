@@ -23,7 +23,7 @@ export default {
   name: 'Page404',
   computed: {
     message() {
-      return '别乱整......'
+      return '您访问的链接失踪了......'
     }
   }
 }

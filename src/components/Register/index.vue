@@ -1,5 +1,5 @@
 <template>
-  <el-dialog title="账号绑定" :visible.sync="openStatus" width="300px" @close="doClose">
+  <el-dialog title="账号绑定" :visible.sync="openStatus" :close-on-click-modal="false" width="400px" @close="doClose">
     <el-tabs v-model="activeName">
       <el-tab-pane label="我没有账号" name="first">
         <el-form ref="regForm" label-position="right" :model="regForm" :rules="rules">
@@ -65,6 +65,8 @@
   </el-dialog>
 </template>
 <script>
+import { encrypt } from '@/utils/rsaEncrypt'
+import { mapGetters } from 'vuex'
 export default {
   props: {
     showDialog: {
@@ -97,13 +99,19 @@ export default {
       openStatus: this.showDialog,
       activeName: 'first',
       regForm: {},
-      loginForm: {},
       rules: {
         account: [{ required: true, message: '请输入账号', trigger: 'blur' }],
         password: [{ validator: validatePass, trigger: 'blur' }],
         password2: [{ validator: validatePass2, trigger: 'blur' }]
       }
     }
+  },
+  computed: {
+    ...mapGetters([
+      'authId',
+      'authState',
+      'authSource'
+    ])
   },
   watch: {
     showDialog(val) {
@@ -115,7 +123,24 @@ export default {
       this.$emit('closeDialog', false)
     },
     register() {
-
+      const accountInfo = {
+        account: this.regForm.account,
+        password: encrypt(this.regForm.password),
+        authId: this.authId,
+        authState: this.authState,
+        authSource: this.authSource
+      }
+      const loading = this.$loading({
+        lock: true,
+        text: '系统登录中,请稍后。。。',
+        spinner: 'el-icon-loading'
+      })
+      this.$store.dispatch('Register', accountInfo).then(() => {
+        this.$router.push({ path: '/dashboard' })
+        loading.close()
+      }).catch(() => {
+        loading.close()
+      })
     }
   }
 }

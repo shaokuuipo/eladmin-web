@@ -31,6 +31,9 @@
           <span v-else>登 录 中...</span>
         </el-button>
       </el-form-item>
+      <el-form-item style="width:100%;">
+        <el-link type="primary" @click="socialLogin('GITEE')">gitee登录</el-link>
+      </el-form-item>
     </el-form>
     <!--  底部  -->
     <div v-if="$store.state.settings.showFooter" id="el-login-footer">
@@ -42,6 +45,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import { encrypt } from '@/utils/rsaEncrypt'
 import Config from '@/settings'
 import { getCodeImg } from '@/api/login'
@@ -59,7 +63,9 @@ export default {
         password: '123456',
         rememberMe: false,
         code: '',
-        uuid: ''
+        uuid: '',
+        authId: '',
+        authState: ''
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', message: '用户名不能为空' }],
@@ -69,6 +75,13 @@ export default {
       loading: false,
       redirect: undefined
     }
+  },
+  computed: {
+    ...mapGetters([
+      'authId',
+      'authState',
+      'authSource'
+    ])
   },
   watch: {
     $route: {
@@ -114,7 +127,10 @@ export default {
           password: this.loginForm.password,
           rememberMe: this.loginForm.rememberMe,
           code: this.loginForm.code,
-          uuid: this.loginForm.uuid
+          uuid: this.loginForm.uuid,
+          authId: this.authId,
+          authState: this.authState,
+          authSource: this.authSource
         }
         if (user.password !== this.cookiePass) {
           user.password = encrypt(user.password)
@@ -154,6 +170,9 @@ export default {
         })
         Cookies.remove('point')
       }
+    },
+    socialLogin(source) {
+      window.location.href = `/auth/social/login/${source}`
     }
   }
 }

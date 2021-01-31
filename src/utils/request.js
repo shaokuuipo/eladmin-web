@@ -5,6 +5,7 @@ import store from '../store'
 import { getToken } from '@/utils/auth'
 import Config from '@/settings'
 import Cookies from 'js-cookie'
+import { getMsg } from '@/utils/errormsg'
 
 // 创建axios实例
 const service = axios.create({
@@ -68,9 +69,10 @@ service.interceptors.response.use(
           router.push({ path: '/401' })
         } else {
           const errorMsg = error.response.data.message
+          const msg = getMsg(errorMsg)
           if (errorMsg !== undefined) {
             Notification.error({
-              title: errorMsg,
+              title: msg,
               duration: 5000
             })
           }

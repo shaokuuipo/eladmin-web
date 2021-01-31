@@ -1,5 +1,6 @@
-import { login, getInfo, logout } from '@/api/login'
+import { login, loginBySocial, getInfo, logout } from '@/api/login'
 import { getToken, setToken, removeToken } from '@/utils/auth'
+import { register } from '@/api/system/register'
 
 const user = {
   state: {
@@ -7,7 +8,13 @@ const user = {
     user: {},
     roles: [],
     // 第一次加载菜单时用到
-    loadMenus: false
+    loadMenus: false,
+    // 第三方登录的时候使用，等于-1表示第三方登录的时候已绑定了账号，否者需要绑定账号
+    authId: null,
+    // 第三方登录的时候使用等于none表示不需要
+    authState: null,
+    // 第三方登录平台标识
+    authSource: null
   },
 
   mutations: {
@@ -22,6 +29,15 @@ const user = {
     },
     SET_LOAD_MENUS: (state, loadMenus) => {
       state.loadMenus = loadMenus
+    },
+    SET_AUTH_ID: (state, authId) => {
+      state.authId = authId
+    },
+    SET_AUTH_STATE: (state, authState) => {
+      state.authState = authState
+    },
+    SET_AUTH_SOURCE: (state, authSource) => {
+      state.authSource = authSource
     }
   },
 
@@ -30,7 +46,49 @@ const user = {
     Login({ commit }, userInfo) {
       const rememberMe = userInfo.rememberMe
       return new Promise((resolve, reject) => {
-        login(userInfo.username, userInfo.password, userInfo.code, userInfo.uuid).then(res => {
+        // debugger
+        login(userInfo.username, userInfo.password, userInfo.code, userInfo.uuid, userInfo.authId, userInfo.authState, userInfo.authSource).then(res => {
+          setToken(res.token, rememberMe)
+          commit('SET_TOKEN', res.token)
+          setUserInfo(res.user, commit)
+          // 第一次加载菜单时用到， 具体见 src 目录下的 permission.js
+          commit('SET_LOAD_MENUS', true)
+          commit('SET_AUTH_ID', -1)
+          commit('SET_AUTH_STATE', 'none')
+          resolve()
+        }).catch(error => {
+          reject(error)
+        })
+      })
+    },
+    // 第三方登录
+    LoginBySocial({ commit }, userInfo) {
+      return new Promise((resolve, reject) => {
+        const rememberMe = false
+        commit('SET_AUTH_SOURCE', userInfo.source)
+        loginBySocial(userInfo.source, userInfo.code, userInfo.state).then(res => {
+          if (res.toBind) {
+            commit('SET_AUTH_ID', res.authId)
+            commit('SET_AUTH_STATE', res.authState)
+            resolve(res)
+            return
+          }
+          setToken(res.token, rememberMe)
+          commit('SET_TOKEN', res.token)
+          setUserInfo(res.user, commit)
+          // 第一次加载菜单时用到， 具体见 src 目录下的 permission.js
+          commit('SET_LOAD_MENUS', true)
+          resolve()
+        }).catch(error => {
+          reject(error)
+        })
+      })
+    },
+    // 第三方登录注册
+    Register({ commit }, accountInfo) {
+      return new Promise((resolve, reject) => {
+        const rememberMe = false
+        register(accountInfo).then(res => {
           setToken(res.token, rememberMe)
           commit('SET_TOKEN', res.token)
           setUserInfo(res.user, commit)
