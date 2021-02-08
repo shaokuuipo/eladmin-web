@@ -40,6 +40,7 @@ export default {
         })
         this.$store.dispatch('LoginBySocial', loginForm).then((res) => {
           if (res && res.toBind) {
+            // 第三方登录，去绑定账号
             this.registerDialog = true
             this.$router.push({ path: '/login' })
             loading.close()
